@@ -1,61 +1,65 @@
 package LoginSecurities.LoginSecurity;
-
-import LoginSecurities.LoginSecurity.Domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
 public class Config {
 
     @Autowired
-    private CustomUserDetailsService  customerUserDetailService;
-
-    @Bean
-    public User user() {
-        return new User(); // You can customize the instantiation here if needed
-    }
-
-    @Bean
-    public AuthenticationProvider authProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(customerUserDetailService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
-    }
+    private CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(customUserDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return authenticationProvider;
+    }
 
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(customerUserDetailService).passwordEncoder(passwordEncoder());
+    @Bean
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeRequests(authorize -> authorize
-                        .requestMatchers("/signUp").permitAll() // Allow access to signUp page
-                        .anyRequest().authenticated() // Require authentication for all other requests
+        http
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/signUp").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
-                        .loginPage("/login") // Custom login page
-                        .loginProcessingUrl("/login") // URL to submit the login form
-                        .defaultSuccessUrl("/admin", true) // Redirect after successful login
-                        .permitAll() // Allow access to login page
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .successHandler(customAuthenticationSuccessHandler()) // Use custom handler
+                        .permitAll()
                 )
-                .build();
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedPage("/403")
+                );
+
+        return http.build();
     }
 }
