@@ -1,26 +1,19 @@
 package LoginSecurities.LoginSecurity;
 
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-
-    private String email;
+    private String username;
     private String password;
-    private String role;
-    private final Collection<? extends  GrantedAuthority> authorities;
+    private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails( String email, String password, String role, Collection<? extends GrantedAuthority> authorities) {
-
-        this.email = email;
+    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        this.username = username;
         this.password = password;
-        this.role = role;
         this.authorities = authorities;
     }
 
@@ -36,7 +29,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
