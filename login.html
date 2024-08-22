@@ -106,16 +106,12 @@
     <!-- Thymeleaf form -->
     <form th:action="@{/login}" method="post"  th:object="${user}" >
         <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" th:field="*{email}" required>
+            <label for="username">Email:</label>
+            <input type="email" id="username" name="username" th:field="*{username}" required>
         </div>
         <div class="form-group">
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" th:field="*{password}" required>
-        </div>
-        <div class="form-group">
-            <label for="role">Role:</label>
-            <input type="text" id="role" name="role" th:field="*{role}" required>
         </div>
         <div class="form-group">
             <button type="submit" id="submitBtn">
