@@ -14,7 +14,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long user_id;
     private String full_name;
-    private String email;
+    private String username;
     private String password;
     private String role;
 
@@ -24,11 +24,11 @@ public class User {
     }
 
 
-    public User(Long user_id, String full_name, String email, String password, String role) {
+    public User(Long user_id, String full_name, String username, String password, String role) {
         super();
         this.user_id = user_id;
         this.full_name = full_name;
-        this.email = email;
+        this.username = username;
         this.password = password;
         this.role = role;
     }
@@ -49,12 +49,12 @@ public class User {
         this.full_name = full_name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
